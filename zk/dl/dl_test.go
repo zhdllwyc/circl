@@ -22,7 +22,6 @@ func testzkRDL(t *testing.T, myGroup group.Group) {
 	if verify == false {
 		t.Error("zkRDL verification failed")
 	}
-
 }
 
 func testzkRDLNegative(t *testing.T, myGroup group.Group) {
@@ -37,11 +36,9 @@ func testzkRDLNegative(t *testing.T, myGroup group.Group) {
 	if verify == true {
 		t.Error("zkRDL verification should fail")
 	}
-
 }
 
 func TestZKRDL(t *testing.T) {
-
 	t.Run("zkRDL", func(t *testing.T) {
 		for i := 0; i < TestzkRDLCount; i++ {
 			currGroup := group.P256
@@ -55,5 +52,4 @@ func TestZKRDL(t *testing.T) {
 			testzkRDLNegative(t, currGroup)
 		}
 	})
-
 }

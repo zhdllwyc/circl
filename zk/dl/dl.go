@@ -13,7 +13,6 @@ import (
 // Input: proverLabel, verifierLabel labels of prover and verifier
 // Ouptput: (V,r), the prove such that we know kA without revealing kA
 func ProveGen(myGroup group.Group, DB, R group.Element, kA group.Scalar, proverLabel, verifierLabel []byte) (group.Element, group.Scalar) {
-
 	v := myGroup.RandomNonZeroScalar(rand.Reader)
 	V := myGroup.NewElement()
 	V.Mul(DB, v)
