@@ -1,6 +1,6 @@
 // Reference: https://datatracker.ietf.org/doc/html/rfc8235#page-6
 // Prove the knowledge of [k] given [k]G, G and the curve where the points reside
-package zkRDL
+package dl
 
 import (
 	"crypto/rand"

@@ -1,4 +1,4 @@
-package zkRDL
+package dl
 
 import (
 	"crypto/rand"
