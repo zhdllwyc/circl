@@ -6,7 +6,7 @@ import (
 	cryptoRand "crypto/rand"
 	"crypto/subtle"
 	"io"
-
+	"fmt"
 	"github.com/cloudflare/circl/internal/sha3"
 	"github.com/cloudflare/circl/sign/dilithium/internal/common"
 )
@@ -317,6 +317,9 @@ func SignTo(sk *PrivateKey, msg []byte, signature []byte) {
 	var yNonce uint16
 	var sig unpackedSignature
 
+	// fixme
+	var cs1 VecL
+
 	if len(signature) < SignatureSize {
 		panic("Signature does not fit in that byteslice")
 	}
@@ -393,6 +396,8 @@ func SignTo(sk *PrivateKey, msg []byte, signature []byte) {
 			sig.z[i].MulHat(&ch, &sk.s1h[i])
 			sig.z[i].InvNTT()
 		}
+
+		cs1 = sig.z
 		sig.z.Add(&sig.z, &y)
 		sig.z.Normalize()
 
@@ -433,7 +438,34 @@ func SignTo(sk *PrivateKey, msg []byte, signature []byte) {
 
 		break
 	}
-
+	// check if this signature contains a zi||zi+1 that looks like a pointer 0x140 || <04000000
+	// Make sure this signature only contains one entry zi||zi+1 that potentially has underlying yi||yi+1 looks like a pointer
+	var pointer int
+	pointer = 0
+	var pointer_num int
+	pointer_num = 0
+	for i := 0; i < L; i++ {
+		for j := 0; j < common.N; j++ {
+			if(j%2==0){
+				curr_coef := sig.z[i][j]
+				next_coef := sig.z[i][j+1]
+				// caveat: (next_coef&16256 != 0) 16256=0b11111110000000 (bit 7-14 are turned on). 
+				// We do not want next_coef to be all 0 for bits 7-14 because we want to make sure cs1 at this index has no impact on the physical frame number
+				if( (curr_coef==uint32(320)) && (next_coef<uint32(16384)) && (next_coef&16256 != 0)){
+					pointer = 1
+				}
+				if( (curr_coef<=uint32(320+78) || curr_coef>=uint32(8380417-320-78)) && (next_coef<uint32(16384)) ){
+					pointer_num = pointer_num + 1
+				}
+			}
+		}
+	}
+	if((pointer==1) && (pointer_num==1)){	
+		fmt.Println("m", msg)
+		fmt.Println("y", y)
+		fmt.Println("cs1", cs1)
+		fmt.Println("sig.z", sig.z)
+	}
 	sig.Pack(signature[:])
 }
 

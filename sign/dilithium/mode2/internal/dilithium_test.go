@@ -5,7 +5,7 @@ package internal
 import (
 	"encoding/binary"
 	"testing"
-
+	"fmt"
 	"github.com/cloudflare/circl/sign/dilithium/internal/common"
 )
 
@@ -57,9 +57,12 @@ func BenchmarkSign(b *testing.B) {
 	var seed [32]byte
 	var msg [8]byte
 	var sig [SignatureSize]byte
+	// fixme: set seed to be anything you want
+	fmt.Println("seed", seed)
 	_, sk := NewKeyFromSeed(&seed)
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	fmt.Println("bn", b.N)
+	for i := uint64(100000000); i < uint64(100000000+b.N); i++ {
 		binary.LittleEndian.PutUint64(msg[:], uint64(i))
 		SignTo(sk, msg[:], sig[:])
 	}
